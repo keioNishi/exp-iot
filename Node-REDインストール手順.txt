@@ -1,0 +1,88 @@
+Macの場合は、次のようにしてインストールしてください。
+
+(手順1) Homebrewのインストール(すでに終わっている人も多いと思います)
+http://brew.sh/index_ja.html にあるスクリプトを実行してhomebrewを導入します。
+具体的には、コマンドシェルを起動して次の通りに実行します。
+/usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
+
+brew -v
+と入力すると、HomeBrewのバージョンが表示されればインストール成功です。
+西は 3.0.9と表示されています。
+
+さて、ここで、インテルMacと最新のMac M1(ARM Mac)で違いが出てきます。
+ARMでは、node.jsのインストールがそのままではARMは非対応となりインストールできません。
+あきらめず、
+Finderから、アプリケーション一覧を表示し、ターミナルを選択、Command+iとしてプロパティを表示し、その中に含まれる「Rosettaを使用して開く」をONにしておきます。これで、IntelバイナリがRosettaによりARMバイナリに翻訳されて実行できるようになります。
+以降は、同じ処理です。なお、西はMac M1のため、バージョンが異なる場合があります。
+
+(手順2) nodebrewのインストール
+brew install nodebrew
+nodebrew -v
+西は 1.0.1と最初に表示されています。
+
+nodebrew ls-remote
+としてインストールできるnode.jsのバージョンを調べます。基本的に最新版を入れておけばよいでしょう。
+一覧で最新は、西の場合v14.16.0でした。これを入れてみます。
+nodebrew install-binary 14.16.0
+なお、人によっては最新版を次のようにして最新版をいれることもできるでしょう。
+nodebrew install-binary latest
+
+nodebrew ls
+として、インストールされたバージョンを確認します。
+西の場合、正しく
+v14.16.0
+と表示されました。
+
+(手順3) node.jsの利用
+次に、node.jsを入れます。
+nodebrew list
+とすると利用できるnode.jsの一覧が見えます。
+nodebrew use v14.16.0
+として、利用するnode.jsのバージョンを指定します。
+
+次に、nodeコマンドが直接触れるようにパスを指定します。
+これが実は厄介です。
+西の場合は、zshのM1版なので、~/.zprofileというファイルが存在します。ここにバイナリの検索パスを加えます。
+これは、人によります。~/.zshrcという場合もあります。
+
+これには、Macのシェルに関する知識が必要ですが、ひとまず、次の方針でやってみてください。
+(1) echo $SHELL として、/bin/zshと表示される場合
+ (1-1) ls ~/.zprofileとすると、ファイルが存在する場合
+echo 'export PATH=$HOME/.nodebrew/current/bin:$PATH' >> ~/.zprofile
+手順4にいきます
+ (1-2) ls ~/.zshrcファイルが存在する場合(ただし、これはうまくいく人とうまくいかない人がいると思います)
+echo 'export PATH=$HOME/.nodebrew/current/bin:$PATH' >> ~/.zshrc
+手順4にいきます
+ (それ以外の場合) システム標準から書き換えているようですので、おそらくどこに入れるかは自分で判断できるのではないかと思います。
+(2) echo $SHELL として、/bin/bashと表示される場合
+ (2-1) ls ~/.bash_profileファイルが存在する場合
+ echo 'export PATH=$HOME/.nodebrew/current/bin:$PATH' >> ~/.bash_profile
+手順4にいきます
+ (それ以外の場合) システム標準から書き換えているようですので、おそらくどこに入れるかは自分で判断できるのではないかと思います。
+
+(手順4) 設定の反映
+ターミナルを再起動します。一度閉じて上げなおしてください。
+なお、シェルに関する知識があれば、
+source ~/.zprofile
+などとすることもできます
+
+(手順5) node.jsインストールの確認
+これでnode.jsが起動するはずです。
+node -v
+とすると、インストールしたバージョンが表示されるはずです。
+
+(手順6) node-redeのインストール
+npm install -g --unsave-perm node-red
+とします。これで、node-redがインストールされます。
+インストールが終わったら、
+node-redとして起動してください。
+ブラウザで、lodalhost:1880をみるとnode-redが起動しているはずです
+
+(手順7) 必要なアドオンのインストール
+node-redのブラウザ画面上で、右上三本線のアイコンをクリックして、パレットの管理、ノードを追加を選択し、
+ノードを検索の中に、serialと入力して
+node-red-node-resialportのノードを追加します
+さらに、ノードを検索の中に、dashboardと入力して
+node-red-dashboardのノードを追加します。
+
+以上です。お疲れさまでした。
